@@ -2,6 +2,7 @@
 pragma solidity ^0.8.7; 
 
 contract FeeCollector{
+    
     address public owner;
     uint256 public balance;
 
