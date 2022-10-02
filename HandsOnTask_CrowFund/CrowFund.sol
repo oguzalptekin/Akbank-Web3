@@ -1,10 +1,11 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "./IERC20.sol";
+import "./IERC20.sol"; //erc interface
 
 contract CrowFund{
 
+    //EVENTS
     event Launch(uint id, address indexed creator, uint goal, uint32 startAt, uint32 endAt);
 
     event Cancel(uint id);
@@ -26,7 +27,7 @@ contract CrowFund{
         bool claimed;
     }
 
-    IERC20 public immutable token;
+    IERC20 public immutable token; //token created as not changable
     uint public count;
     mapping(uint => Campaign) public campaigns;
     mapping(uint => mapping(address => uint)) public pledgedAmount;
@@ -35,7 +36,7 @@ contract CrowFund{
         token = IERC20(_token);
     } 
 
-    function launch(uint _goal, uint32 _startAt, uint32 _endAt) external{
+    function launch(uint _goal, uint32 _startAt, uint32 _endAt) external{ //token received
         require(_startAt >= block.timestamp, "Start at < now");
         require(_endAt >= _startAt, "end at < start at");
         require(_endAt <= block.timestamp +90 days, "end at > max duration");
@@ -61,7 +62,7 @@ contract CrowFund{
         emit Cancel(_id); //Cancel event is called
     }
 
-    function pledge(uint _id, uint _amount) external{
+    function pledge(uint _id, uint _amount) external{ 
         Campaign storage campaign = campaigns[_id];
         require(block.timestamp >= campaign.startAt, "Not Started");
         require(block.timestamp <= campaign.endAt, "Ended");
@@ -70,7 +71,7 @@ contract CrowFund{
         pledgedAmount[_id][msg.sender] += _amount;
         token.transferFrom(msg.sender, address(this), _amount);
 
-        emit Pledge(_id, msg.sender, _amount);
+        emit Pledge(_id, msg.sender, _amount); //Pledge event is called
     }
 
     function unpledge(uint _id, uint _amount) external{
@@ -81,7 +82,7 @@ contract CrowFund{
         pledgedAmount[_id][msg.sender] -= _amount;
         token.transfer(msg.sender, _amount);
 
-        emit Unpledge(_id,msg.sender, _amount);
+        emit Unpledge(_id,msg.sender, _amount); //Unpledge event is called
     }
 
     function claim(uint _id) external{
@@ -94,7 +95,7 @@ contract CrowFund{
         campaign.claimed = true;
         token.transfer(msg.sender, campaign.pledged);
 
-        emit Claim(_id);
+        emit Claim(_id); //Claim event is called
     }
 
     function refund(uint _id) external{
@@ -106,6 +107,6 @@ contract CrowFund{
         pledgedAmount[_id][msg.sender] = 0;
         token.transfer(msg.sender, bal);
 
-        emit Refund(_id, msg.sender, bal);
+        emit Refund(_id, msg.sender, bal); //Refund event is called
     }
 }
